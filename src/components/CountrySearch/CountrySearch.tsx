@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState, useRef, useMemo } from "react"
+import { KeyboardEvent, useState, useRef, useMemo, RefObject } from "react"
 import toast from "react-hot-toast"
 import { Country } from "@/types"
 import { searchCountries } from "@/data/countries"
@@ -62,7 +62,7 @@ export const CountrySearch = ({ onSelect, existingCodes }: CountrySearchProps) =
             </Button>
           ) : undefined
         }
-        inputRef={inputRef as React.RefObject<HTMLInputElement>}
+        inputRef={inputRef as RefObject<HTMLInputElement>}
         onKeyDown={handleKeyDown}
       />
     </div>

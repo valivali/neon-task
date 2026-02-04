@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Globe from "react-globe.gl"
+import Globe, { GlobeMethods } from "react-globe.gl"
 import { Country } from "@/types"
 import { ISO_ALPHA3_TO_ALPHA2 } from "@/data/isoCodeMapping"
 import styles from "./WorldMap.module.scss"
@@ -33,7 +33,7 @@ interface GeoJsonFeatureCollection {
 }
 
 export const WorldMap = ({ highlightedCountries, focusedCountry, onCountryClick }: WorldMapProps) => {
-  const globeEl = useRef<any>(null)
+  const globeEl = useRef<GlobeMethods | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [countries, setCountries] = useState<GeoJsonFeatureCollection>({ type: "FeatureCollection", features: [] })
   const [globeSize, setGlobeSize] = useState({ width: 0, height: 0 })

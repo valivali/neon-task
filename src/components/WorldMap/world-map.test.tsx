@@ -1,6 +1,7 @@
 import { render, waitFor, act } from "@testing-library/react"
 import { WorldMap } from "./WorldMap"
 import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals"
+import React from "react"
 
 jest.mock("react-globe.gl", () => {
   const React = require("react")

@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "countries-and-timezones": "^3.8.0",
@@ -48,6 +50,18 @@
     "sass": "^1.97.3",
     "ts-jest": "^29.4.6",
     "typescript": "^5",
-    "typescript-eslint": "^8.54.0"
+    "typescript-eslint": "^8.54.0",
+    "storybook": "^10.2.6",
+    "@storybook/nextjs-vite": "^10.2.6",
+    "@chromatic-com/storybook": "^5.0.0",
+    "@storybook/addon-vitest": "^10.2.6",
+    "@storybook/addon-a11y": "^10.2.6",
+    "@storybook/addon-docs": "^10.2.6",
+    "vite": "^7.3.1",
+    "eslint-plugin-storybook": "^10.2.6",
+    "vitest": "^4.0.18",
+    "playwright": "^1.58.1",
+    "@vitest/browser-playwright": "^4.0.18",
+    "@vitest/coverage-v8": "^4.0.18"
   }
 }
