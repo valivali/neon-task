@@ -50,6 +50,7 @@ export default function WorldClockPage() {
     (country: Country) => {
       if (!countryCodes.includes(country.code)) {
         setCountryCodes([country.code, ...countryCodes])
+        setFocusedCountry(country)
       }
     },
     [countryCodes, setCountryCodes]
@@ -82,6 +83,7 @@ export default function WorldClockPage() {
   const handleShowOnMap = useCallback((code: string) => {
     const country = getCountryByCode(code)
     if (country) {
+      console.log("handleShowOnMap", country)
       setFocusedCountry(country)
     }
   }, [])
@@ -92,6 +94,7 @@ export default function WorldClockPage() {
       if (!country) return
 
       if (countryCodes.includes(country.code)) {
+        console.log("handleCountryClick", country)
         setFocusedCountry(country)
       } else {
         setCountryToAdd(country)
@@ -104,6 +107,7 @@ export default function WorldClockPage() {
   const handleConfirmAdd = useCallback(() => {
     if (countryToAdd) {
       setCountryCodes([countryToAdd.code, ...countryCodes])
+      console.log("handleConfirmAdd", countryToAdd)
       setFocusedCountry(countryToAdd)
       setCountryToAdd(null)
       toast.success(`Added ${countryToAdd.name}`)

@@ -8,7 +8,7 @@ import { OptionsIcon } from "@/components/icons/OptionsIcon"
 import { PinIcon } from "@/components/icons/PinIcon"
 import { TrashIcon } from "@/components/icons/TrashIcon"
 import styles from "./CountryClock.module.scss"
-import { Button } from "../UI/Button/Button"
+import { Button } from "../UI/button/Button"
 import { Subtitle, Text, Title } from "../UI/text/Text"
 
 interface CountryClockProps {
@@ -110,7 +110,7 @@ const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove,
 
 const isFlagKey = (key: string): key is keyof typeof flags => key in flags
 
-const getOffsetsByTimeZone = (timeZones: string[], date: Date) => {
+export const getOffsetsByTimeZone = (timeZones: string[], date: Date) => {
   const seen = new Set<string>()
   const offsetEntries: { offset: string; timeZone: string }[] = []
 
@@ -129,7 +129,7 @@ const getOffsetsByTimeZone = (timeZones: string[], date: Date) => {
   return offsetEntries.sort((a, b) => a.offset.localeCompare(b.offset))
 }
 
-const formatOffset = (parts: Intl.DateTimeFormatPart[]) => {
+export const formatOffset = (parts: Intl.DateTimeFormatPart[]) => {
   const offsetPart = parts.find((part) => part.type === "timeZoneName")
   const value = offsetPart?.value ?? "GMT+0"
   if (value === "GMT" || value === "UTC") return "+00"

@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { CloseIcon } from "@/components/icons/CloseIcon"
 import styles from "./Modal.module.scss"
-import { Button } from "@/components/UI/Button/Button"
+import { Button } from "../button/Button"
 
 interface ModalProps {
   isOpen: boolean

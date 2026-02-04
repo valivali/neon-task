@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Globe from "react-globe.gl"
 import { Country } from "@/types"
-import { ISO_ALPHA3_TO_ALPHA2, ISO_ALPHA2_TO_ALPHA3 } from "@/data/isoCodeMapping"
+import { ISO_ALPHA3_TO_ALPHA2 } from "@/data/isoCodeMapping"
 import styles from "./WorldMap.module.scss"
 
 interface WorldMapProps {

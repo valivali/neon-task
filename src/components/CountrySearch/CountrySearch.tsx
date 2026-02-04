@@ -7,7 +7,7 @@ import { Autocomplete } from "@/components/UI/autocomplete/Autocomplete"
 import { SearchIcon } from "@/components/icons/SearchIcon"
 import { CloseIcon } from "@/components/icons/CloseIcon"
 import styles from "./CountrySearch.module.scss"
-import { Button } from "../UI/Button/Button"
+import { Button } from "../UI/button/Button"
 
 interface CountrySearchProps {
   onSelect: (country: Country) => void
