@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Neon Task - Country Clocks & World Map
+
+A Next.js application for exploring countries through an interactive world map and tracking time across multiple timezones. Users can search for countries, select them from a 3D globe, and monitor real-time clocks with timezone-specific selections.
+
+## Features
+
+- **Interactive 3D World Map**: Click countries on a globe to add them to your clock collection
+- **Country Search**: Autocomplete search with instant results
+- **Multi-Timezone Clocks**: Each country displays all available timezones with user selection
+- **Persistent State**: Selections saved in session storage across page refreshes
+- **Random Initialization**: Three random country clocks displayed on first load
+- **Real-time Updates**: Clocks update every second with accurate timezone data
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Language**: TypeScript
+- **Styling**: SCSS Modules
+- **Globe Visualization**: react-globe.gl
+- **Timezone Data**: countries-and-timezones
+- **Testing**: Jest, Vitest, Storybook
+- **Linting**: ESLint with TypeScript support
+
+## Project Structure
+
+```
+src/
+├── app/                 # Next.js App Router pages and layouts
+├── components/
+│   ├── CountryClock/    # Country clock card with timezone selector
+│   ├── CountrySearch/   # Search input with autocomplete
+│   ├── WorldMap/        # Interactive 3D globe component
+│   ├── EmptyState/      # Empty state placeholder
+│   ├── icons/           # SVG icon components
+│   └── UI/              # Reusable UI primitives (Button, Card, Input, etc.)
+├── data/
+│   ├── countries.ts           # Canonical country list
+│   ├── countryCoordinates.ts  # Geographic coordinates for map
+│   └── isoCodeMapping.ts      # ISO code normalization
+├── hooks/
+│   ├── useDebounce.ts         # Debounced value hook
+│   ├── useInterval.ts         # Interval timer hook
+│   └── useSessionStorage.ts   # Session storage state management
+├── styles/             # Global styles and SCSS variables
+└── types/              # TypeScript type definitions
+```
+
+## Architecture
+
+The application follows a client-side architecture with no backend server or database:
+
+- **State Management**: React hooks with session storage persistence
+- **Data Layer**: Static data files with library mappings
+- **Component Design**: Modular, reusable components with SCSS Modules
+- **Rendering**: Client-side rendering with Next.js App Router
+
+## Design Decisions
+
+### 1. Multiple Timezone Support
+
+Some countries have multiple timezones (e.g., USA has 6+ timezones, Russia spans 11). Instead of choosing a single default time to display, I decided to add a list of all supported timezones for each selected country. This allows users to select the specific timezone that interests them through a dropdown menu.
+
+### 2. Session Storage for Persistence
+
+I decided not to add a server or database since it wasn't instructed in the assignment. However, I wanted to maintain user selections in case they refresh the page for a better experience. Selected countries and their timezone preferences are stored in session storage, persisting throughout the browser session.
+
+### 3. Random Country Initialization
+
+I decided to randomly select 3 country clocks on app initialization. This provides immediate content when users first load the application, demonstrating the functionality and avoiding an empty state on the landing page.
+
+### 4. Data Mapping Files
+
+Different libraries represent countries using different formats and naming conventions. I had to add data mapping files to overcome these inconsistencies:
+
+- **`countries.ts`**: Canonical list of countries with standardized properties
+- **`countryCoordinates.ts`**: Geographic coordinates for map positioning
+- **`isoCodeMapping.ts`**: Mapping layer to align ISO codes between different data sources (country-flag-icons, countries-and-timezones, react-globe.gl)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ and npm
+
+### Installation
+
+```bash
+npm install
+```
+
+### Development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command                   | Description                           |
+| ------------------------- | ------------------------------------- |
+| `npm run dev`             | Start development server on port 3000 |
+| `npm run build`           | Build production bundle               |
+| `npm start`               | Start production server               |
+| `npm run lint`            | Run ESLint checks                     |
+| `npm run lint:fix`        | Fix ESLint issues automatically       |
+| `npm run typecheck`       | Run TypeScript type checking          |
+| `npm test`                | Run Jest unit tests                   |
+| `npm run test:watch`      | Run tests in watch mode               |
+| `npm run test:coverage`   | Generate test coverage report         |
+| `npm run storybook`       | Start Storybook on port 6006          |
+| `npm run build-storybook` | Build static Storybook                |
 
-## Learn More
+## Testing
 
-To learn more about Next.js, take a look at the following resources:
+The project includes multiple testing strategies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Unit Tests**: Jest with React Testing Library for component logic
+- **Component Tests**: Storybook with Vitest addon for UI components
+- **Type Safety**: TypeScript strict mode with comprehensive type checking
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run all tests:
 
-## Deploy on Vercel
+```bash
+npm test
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+View interactive component documentation:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run storybook
+```
