@@ -2,6 +2,12 @@
 
 A Next.js application for exploring countries through an interactive world map and tracking time across multiple timezones. Users can search for countries, select them from a 3D globe, and monitor real-time clocks with timezone-specific selections.
 
+## Demo
+
+Watch a full walkthrough of the application:
+
+[View Demo Video](https://www.loom.com/share/f4e516a2270d4f1a8318c2bb3105087b)
+
 ## Features
 
 - **Interactive 3D World Map**: Click countries on a globe to add them to your clock collection
