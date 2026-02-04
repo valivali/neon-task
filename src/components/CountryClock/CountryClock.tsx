@@ -9,7 +9,7 @@ import { PinIcon } from "@/components/icons/PinIcon"
 import { TrashIcon } from "@/components/icons/TrashIcon"
 import styles from "./CountryClock.module.scss"
 import { Button } from "../UI/button/Button"
-import { Subtitle, Text, Title } from "../UI/text/Text"
+import { Subtitle, Text } from "../UI/text/Text"
 
 interface CountryClockProps {
   country: Country

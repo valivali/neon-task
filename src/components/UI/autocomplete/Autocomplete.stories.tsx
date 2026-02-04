@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { useMemo, useState } from "react"
 import { Autocomplete } from "./Autocomplete"
 import { SearchIcon } from "@/components/icons/SearchIcon"
