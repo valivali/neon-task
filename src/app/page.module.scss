@@ -10,7 +10,6 @@
 }
 
 .container {
-  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -42,7 +41,49 @@
   }
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  margin-top: var(--spacing-lg);
+
+  @include respond-above($breakpoint-lg) {
+    flex-direction: row;
+    gap: var(--spacing-xl);
+  }
+}
+
+.clockSection {
+  flex: 1;
+  min-width: 0;
+
+  @include respond-above($breakpoint-lg) {
+    max-width: 50%;
+  }
+}
+
+.mapSection {
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+
+  @include respond-above($breakpoint-lg) {
+    max-width: 50%;
+  }
+}
+
 .clockList {
   display: flex;
   flex-direction: column;
+}
+
+.mapLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  color: var(--color-text);
+  font-size: 1rem;
+  background: linear-gradient(135deg, rgba(5, 102, 141, 0.1) 0%, rgba(2, 128, 144, 0.05) 100%);
+  border-radius: var(--radius-lg);
 }

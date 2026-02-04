@@ -1,6 +1,7 @@
 import * as flags from "country-flag-icons/react/3x2"
 import { getAllCountries } from "countries-and-timezones"
 import { Country } from "@/types"
+import { COUNTRY_COORDINATES } from "./countryCoordinates"
 
 const isFlagKey = (key: string): key is keyof typeof flags => key in flags
 
@@ -11,11 +12,14 @@ const getFallbackTimeZone = (timeZones: string[]) => {
 export const COUNTRIES: Country[] = Object.values(getAllCountries())
   .map((country) => {
     const code = country.id.toUpperCase()
+    const coords = COUNTRY_COORDINATES[code] || { lat: 0, lng: 0 }
     return {
       code,
       name: country.name,
       timeZone: getFallbackTimeZone(country.timezones),
-      timeZones: country.timezones
+      timeZones: country.timezones,
+      lat: coords.lat,
+      lng: coords.lng
     }
   })
   .filter((country) => isFlagKey(country.code))

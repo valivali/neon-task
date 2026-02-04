@@ -1,0 +1,21 @@
+@use "@/styles/variables" as *;
+
+.globeContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(5, 102, 141, 0.1) 0%, rgba(2, 128, 144, 0.05) 100%);
+  box-shadow: var(--shadow-lg);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  canvas {
+    border-radius: var(--radius-lg);
+    transition: opacity 0.5s ease-in-out;
+  }
+}

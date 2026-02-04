@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
+import dynamic from "next/dynamic"
 import toast from "react-hot-toast"
 import { Country } from "@/types"
 import { getCountryByCode, getRandomCountries } from "@/data/countries"
@@ -14,6 +15,11 @@ import { EmptyState } from "@/components/EmptyState/EmptyState"
 import { GlobeIcon } from "@/components/icons/GlobeIcon"
 import styles from "./page.module.scss"
 
+const WorldMap = dynamic(() => import("@/components/WorldMap/WorldMap").then((mod) => mod.WorldMap), {
+  ssr: false,
+  loading: () => <div className={styles.mapLoading}>Loading globe...</div>
+})
+
 export default function WorldClockPage() {
   const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
@@ -21,6 +27,9 @@ export default function WorldClockPage() {
   const [selectedOffsets, setSelectedOffsets] = useSessionStorage<Record<string, string>>("world-clock-timezone-offsets", {})
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
   const [countryToRemove, setCountryToRemove] = useState<string | null>(null)
+  const [focusedCountry, setFocusedCountry] = useState<Country | null>(null)
+  const [addModalOpen, setAddModalOpen] = useState(false)
+  const [countryToAdd, setCountryToAdd] = useState<Country | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -73,9 +82,33 @@ export default function WorldClockPage() {
   const handleShowOnMap = useCallback((code: string) => {
     const country = getCountryByCode(code)
     if (country) {
-      console.log(`Show ${country.name} on map`)
+      setFocusedCountry(country)
     }
   }, [])
+
+  const handleCountryClick = useCallback(
+    (code: string) => {
+      const country = getCountryByCode(code)
+      if (!country) return
+
+      if (countryCodes.includes(country.code)) {
+        setFocusedCountry(country)
+      } else {
+        setCountryToAdd(country)
+        setAddModalOpen(true)
+      }
+    },
+    [countryCodes]
+  )
+
+  const handleConfirmAdd = useCallback(() => {
+    if (countryToAdd) {
+      setCountryCodes([countryToAdd.code, ...countryCodes])
+      setFocusedCountry(countryToAdd)
+      setCountryToAdd(null)
+      toast.success(`Added ${countryToAdd.name}`)
+    }
+  }, [countryToAdd, countryCodes, setCountryCodes])
 
   const countries = countryCodes.map((code) => getCountryByCode(code)).filter((country): country is Country => country !== undefined)
 
@@ -93,23 +126,31 @@ export default function WorldClockPage() {
 
         <CountrySearch onSelect={handleSelectCountry} existingCodes={countryCodes} />
 
-        {countries.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className={styles.clockList}>
-            {countries.map((country) => (
-              <CountryClock
-                key={country.code}
-                country={country}
-                currentTime={currentTime}
-                selectedOffset={selectedOffsets[country.code]}
-                onRemove={handleRemoveClick}
-                onShowOnMap={handleShowOnMap}
-                onSelectOffset={handleSelectOffset}
-              />
-            ))}
+        <div className={styles.content}>
+          <div className={styles.clockSection}>
+            {countries.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className={styles.clockList}>
+                {countries.map((country: Country) => (
+                  <CountryClock
+                    key={country.code}
+                    country={country}
+                    currentTime={currentTime}
+                    selectedOffset={selectedOffsets[country.code]}
+                    onRemove={handleRemoveClick}
+                    onShowOnMap={handleShowOnMap}
+                    onSelectOffset={handleSelectOffset}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          <div className={styles.mapSection}>
+            <WorldMap highlightedCountries={countryCodes} focusedCountry={focusedCountry} onCountryClick={handleCountryClick} />
+          </div>
+        </div>
       </div>
 
       <Modal
@@ -121,6 +162,17 @@ export default function WorldClockPage() {
         onConfirm={handleConfirmRemove}
       >
         Are you sure you want to remove this clock from your list?
+      </Modal>
+
+      <Modal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        title="Add Clock"
+        confirmText="Add"
+        cancelText="Cancel"
+        onConfirm={handleConfirmAdd}
+      >
+        {countryToAdd && `Add a clock for ${countryToAdd.name}?`}
       </Modal>
     </main>
   )

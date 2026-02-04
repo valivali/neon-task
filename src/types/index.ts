@@ -3,4 +3,6 @@ export interface Country {
   name: string
   timeZone: string
   timeZones: string[]
+  lat: number
+  lng: number
 }

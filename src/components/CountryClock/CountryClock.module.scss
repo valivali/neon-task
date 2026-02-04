@@ -2,6 +2,9 @@
 
 .clockCard {
   margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 
   .clockContent {
     display: grid;
@@ -46,17 +49,7 @@
       }
 
       .countryName {
-        // font-size: 16px;
-        // font-weight: 500;
-        // color: var(--color-text);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         margin: 0;
-
-        @include respond-above($breakpoint-md) {
-          // font-size: 18px;
-        }
       }
     }
 
@@ -95,13 +88,6 @@
           }
         }
       }
-
-      .timeZones {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: var(--spacing-xs);
-      }
     }
 
     .optionsWrapper {
@@ -135,5 +121,12 @@
       align-items: center;
       gap: var(--spacing-sm);
     }
+  }
+
+  .timeZones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-xs);
   }
 }

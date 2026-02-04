@@ -58,21 +58,6 @@ const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove,
             <span className={styles.time}>{timeString}</span>
             <span className={styles.offset}>{offsetString}</span>
           </div>
-          {availableOffsets.length > 1 && (
-            <div className={styles.timeZones} role="radiogroup" aria-label={`${country.name} timezones`}>
-              {availableOffsets.map((offset) => (
-                <Badge
-                  key={offset}
-                  isSelected={offset === activeOffset}
-                  role="radio"
-                  aria-checked={offset === activeOffset}
-                  onClick={() => onSelectOffset(country.code, offset)}
-                >
-                  {offset}
-                </Badge>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className={styles.optionsWrapper}>
@@ -104,6 +89,21 @@ const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove,
           </Dropdown>
         </div>
       </div>
+      {availableOffsets.length > 1 && (
+        <div className={styles.timeZones} role="radiogroup" aria-label={`${country.name} timezones`}>
+          {availableOffsets.map((offset) => (
+            <Badge
+              key={offset}
+              isSelected={offset === activeOffset}
+              role="radio"
+              aria-checked={offset === activeOffset}
+              onClick={() => onSelectOffset(country.code, offset)}
+            >
+              {offset}
+            </Badge>
+          ))}
+        </div>
+      )}
     </Card>
   )
 }
@@ -126,7 +126,7 @@ const getOffsetsByTimeZone = (timeZones: string[], date: Date) => {
     }
   })
 
-  return offsetEntries
+  return offsetEntries.sort((a, b) => a.offset.localeCompare(b.offset))
 }
 
 const formatOffset = (parts: Intl.DateTimeFormatPart[]) => {
