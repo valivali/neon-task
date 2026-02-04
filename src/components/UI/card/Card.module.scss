@@ -1,0 +1,17 @@
+@use "@/styles/variables" as *;
+
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  @include respond-above($breakpoint-md) {
+    padding: var(--spacing-lg);
+  }
+}

@@ -1,0 +1,139 @@
+@use "@/styles/variables" as *;
+
+.clockCard {
+  margin-bottom: var(--spacing-md);
+
+  .clockContent {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "left options"
+      "time time";
+    align-items: center;
+    gap: var(--spacing-md);
+
+    @include respond-above($breakpoint-md) {
+      grid-template-columns: 1fr auto auto;
+      grid-template-areas: "left time options";
+    }
+
+    .leftSection {
+      grid-area: left;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      flex: 1;
+      min-width: 0;
+
+      .flagWrapper {
+        flex-shrink: 0;
+        width: 40px;
+        height: 30px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+
+        @include respond-above($breakpoint-md) {
+          width: 50px;
+          height: 38px;
+        }
+
+        .flag {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .countryName {
+        // font-size: 16px;
+        // font-weight: 500;
+        // color: var(--color-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+
+        @include respond-above($breakpoint-md) {
+          // font-size: 18px;
+        }
+      }
+    }
+
+    .timeBlock {
+      grid-area: time;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--spacing-xs);
+
+      .timeInfo {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: var(--spacing-xs);
+
+        .time {
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--color-text);
+          font-variant-numeric: tabular-nums;
+
+          @include respond-above($breakpoint-md) {
+            font-size: 28px;
+          }
+        }
+
+        .offset {
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--color-gray);
+          font-variant-numeric: tabular-nums;
+
+          @include respond-above($breakpoint-md) {
+            font-size: 14px;
+          }
+        }
+      }
+
+      .timeZones {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: var(--spacing-xs);
+      }
+    }
+
+    .optionsWrapper {
+      grid-area: options;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-end;
+    }
+
+    .optionsButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-sm);
+      color: var(--color-gray);
+      transition: color 0.2s ease;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: none;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--color-text);
+        background: var(--color-gray-light);
+      }
+    }
+
+    .dropdownItem {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@use "@/styles/variables" as *;
+
+.main {
+  min-height: 100vh;
+  padding: var(--spacing-md);
+
+  @include respond-above($breakpoint-md) {
+    padding: var(--spacing-xl);
+  }
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+
+  h1 {
+    margin: 0;
+  }
+
+  @include respond-above($breakpoint-md) {
+    gap: var(--spacing-lg);
+  }
+}
+
+.globeIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+
+  @include respond-above($breakpoint-md) {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.clockList {
+  display: flex;
+  flex-direction: column;
+}

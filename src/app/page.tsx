@@ -1,66 +1,127 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
 
-export default function Home() {
+import { useState, useCallback, useEffect } from "react"
+import toast from "react-hot-toast"
+import { Country } from "@/types"
+import { getCountryByCode, getRandomCountries } from "@/data/countries"
+import { useInterval } from "@/hooks/useInterval"
+import { useSessionStorage } from "@/hooks/useSessionStorage"
+import { Title } from "@/components/UI/text/Text"
+import { Modal } from "@/components/UI/modal/Modal"
+import { CountryClock } from "@/components/CountryClock/CountryClock"
+import { CountrySearch } from "@/components/CountrySearch/CountrySearch"
+import { EmptyState } from "@/components/EmptyState/EmptyState"
+import { GlobeIcon } from "@/components/icons/GlobeIcon"
+import styles from "./page.module.scss"
+
+export default function WorldClockPage() {
+  const [mounted, setMounted] = useState(false)
+  const [currentTime, setCurrentTime] = useState<Date | null>(null)
+  const [countryCodes, setCountryCodes] = useSessionStorage<string[]>("world-clock-countries", [])
+  const [selectedOffsets, setSelectedOffsets] = useSessionStorage<Record<string, string>>("world-clock-timezone-offsets", {})
+  const [removeModalOpen, setRemoveModalOpen] = useState(false)
+  const [countryToRemove, setCountryToRemove] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMounted(true)
+    setCurrentTime(new Date())
+  }, [])
+
+  useEffect(() => {
+    if (mounted && countryCodes.length === 0) {
+      setCountryCodes(getRandomCountries(3).map((c) => c.code))
+    }
+  }, [mounted, setCountryCodes])
+
+  useInterval(() => {
+    setCurrentTime(new Date())
+  }, 1000)
+
+  const handleSelectCountry = useCallback(
+    (country: Country) => {
+      if (!countryCodes.includes(country.code)) {
+        setCountryCodes([country.code, ...countryCodes])
+      }
+    },
+    [countryCodes, setCountryCodes]
+  )
+
+  const handleRemoveClick = useCallback((code: string) => {
+    setCountryToRemove(code)
+    setRemoveModalOpen(true)
+  }, [])
+
+  const handleConfirmRemove = useCallback(() => {
+    if (countryToRemove) {
+      setCountryCodes(countryCodes.filter((code) => code !== countryToRemove))
+      if (selectedOffsets[countryToRemove]) {
+        const { [countryToRemove]: _, ...rest } = selectedOffsets
+        setSelectedOffsets(rest)
+      }
+      setCountryToRemove(null)
+      toast.success("Clock removed successfully")
+    }
+  }, [countryToRemove, countryCodes, selectedOffsets, setCountryCodes, setSelectedOffsets])
+
+  const handleSelectOffset = useCallback(
+    (code: string, offset: string) => {
+      setSelectedOffsets({ ...selectedOffsets, [code]: offset })
+    },
+    [selectedOffsets, setSelectedOffsets]
+  )
+
+  const handleShowOnMap = useCallback((code: string) => {
+    const country = getCountryByCode(code)
+    if (country) {
+      console.log(`Show ${country.name} on map`)
+    }
+  }, [])
+
+  const countries = countryCodes.map((code) => getCountryByCode(code)).filter((country): country is Country => country !== undefined)
+
+  if (!mounted) {
+    return null
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className={styles.main}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <GlobeIcon className={styles.globeIcon} />
+          <Title>World Clock App</Title>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+
+        <CountrySearch onSelect={handleSelectCountry} existingCodes={countryCodes} />
+
+        {countries.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className={styles.clockList}>
+            {countries.map((country) => (
+              <CountryClock
+                key={country.code}
+                country={country}
+                currentTime={currentTime}
+                selectedOffset={selectedOffsets[country.code]}
+                onRemove={handleRemoveClick}
+                onShowOnMap={handleShowOnMap}
+                onSelectOffset={handleSelectOffset}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Modal
+        isOpen={removeModalOpen}
+        onClose={() => setRemoveModalOpen(false)}
+        title="Remove Clock"
+        confirmText="Remove"
+        cancelText="Cancel"
+        onConfirm={handleConfirmRemove}
+      >
+        Are you sure you want to remove this clock from your list?
+      </Modal>
+    </main>
+  )
 }
