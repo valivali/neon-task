@@ -1,4 +1,5 @@
-import { ReactNode } from "react"
+import { ReactNode, ReactElement } from "react"
+import { cn } from "@/utils/classNames"
 import styles from "./Text.module.scss"
 
 type TextSize = "sm" | "md" | "lg"
@@ -33,33 +34,31 @@ const titleTags: Record<TitleLevel, "h1" | "h2" | "h3" | "h4" | "h5" | "h6"> = {
   6: "h6"
 }
 
-const buildClasses = (classes: Array<string | undefined>) => classes.filter(Boolean).join(" ")
-
 const getTextTag = (variant: TextVariant) => {
   if (variant === "caption") return "span"
   return variant
 }
 
-export const Text = ({ children, className, size, variant = "span" }: TextProps) => {
+export const Text = ({ children, className, size, variant = "span" }: TextProps): ReactElement => {
   const Tag = getTextTag(variant)
   const sizeClass = size ? `text--${size}` : undefined
-  const classes = buildClasses([styles.text, sizeClass, className])
+  const classes = cn(styles.text, sizeClass, className)
 
   return <Tag className={classes}>{children}</Tag>
 }
 
-export const Title = ({ children, className, size, level = 1 }: TitleProps) => {
+export const Title = ({ children, className, size, level = 1 }: TitleProps): ReactElement => {
   const Tag = titleTags[level]
   const sizeClass = size ? `title--${size}` : undefined
-  const classes = buildClasses([styles.title, sizeClass, className])
+  const classes = cn(styles.title, sizeClass, className)
 
   return <Tag className={classes}>{children}</Tag>
 }
 
-export const Subtitle = ({ children, className, size, variant = "div" }: SubtitleProps) => {
+export const Subtitle = ({ children, className, size, variant = "div" }: SubtitleProps): ReactElement => {
   const Tag = variant
   const sizeClass = size ? `subtitle--${size}` : undefined
-  const classes = buildClasses([styles.subtitle, sizeClass, className])
+  const classes = cn(styles.subtitle, sizeClass, className)
 
   return <Tag className={classes}>{children}</Tag>
 }

@@ -1,4 +1,5 @@
-import React, { ReactNode, useState, useRef, useEffect, KeyboardEvent } from "react"
+import React, { ReactNode, ReactElement, useState, useRef, useEffect, KeyboardEvent, useCallback } from "react"
+import { useClickOutside } from "@/hooks/useClickOutside"
 import { Input } from "@/components/UI/input/Input"
 import styles from "./Autocomplete.module.scss"
 
@@ -28,7 +29,7 @@ export function Autocomplete<T>({
   rightElement,
   inputRef: inputRefProp,
   onKeyDown
-}: AutocompleteProps<T>) {
+}: AutocompleteProps<T>): ReactElement {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const [isListOpen, setIsListOpen] = useState(false)
   const hasOptions = options.length > 0
@@ -38,22 +39,17 @@ export function Autocomplete<T>({
     else setIsListOpen(false)
   }, [hasOptions])
 
-  useEffect(() => {
-    if (!isListOpen) return
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target
-      if (target instanceof Node && wrapperRef.current && !wrapperRef.current.contains(target)) {
-        setIsListOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isListOpen])
+  const handleClose = useCallback(() => setIsListOpen(false), [])
 
-  const handleSelectOption = (option: T) => {
-    onSelect(option)
-    setIsListOpen(false)
-  }
+  useClickOutside(wrapperRef, handleClose, isListOpen)
+
+  const handleSelectOption = useCallback(
+    (option: T) => {
+      onSelect(option)
+      setIsListOpen(false)
+    },
+    [onSelect]
+  )
 
   const isOpen = hasOptions && isListOpen
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { HourglassIcon } from "@/components/icons/HourglassIcon"
 import { Text } from "@/components/UI/text/Text"
 import styles from "./EmptyState.module.scss"
@@ -13,12 +13,7 @@ const timeQuotes = [
 ]
 
 export const EmptyState = () => {
-  const [quote, setQuote] = useState(timeQuotes[0])
-
-  useEffect(() => {
-    const randomQuote = timeQuotes[Math.floor(Math.random() * timeQuotes.length)]
-    setQuote(randomQuote)
-  }, [])
+  const [quote] = useState(() => timeQuotes[Math.floor(Math.random() * timeQuotes.length)])
 
   return (
     <div className={styles.emptyState}>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import Globe, { GlobeMethods } from "react-globe.gl"
 import { Country } from "@/types"
 import { ISO_ALPHA3_TO_ALPHA2 } from "@/data/isoCodeMapping"
@@ -32,16 +32,25 @@ interface GeoJsonFeatureCollection {
   features: GeoJsonFeature[]
 }
 
+const COLORS = {
+  highlight: "rgba(2, 195, 154, 0.8)",
+  default: "rgba(5, 102, 141, 0.15)",
+  atmosphere: "rgba(2, 128, 144, 0.5)",
+  highlightedCap: "rgba(2, 195, 154, 0.8)",
+  defaultCap: "rgba(0, 0, 0, 0.75)",
+  highlightedSide: "rgba(231, 40, 40, 0)",
+  defaultSide: "rgba(0, 0, 0, 0)",
+  highlightedStroke: "rgba(231, 40, 40, 0.6)",
+  defaultStroke: "rgba(255, 255, 255, 0.75)"
+}
+
 export const WorldMap = ({ highlightedCountries, focusedCountry, onCountryClick }: WorldMapProps) => {
   const globeEl = useRef<GlobeMethods | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [countries, setCountries] = useState<GeoJsonFeatureCollection>({ type: "FeatureCollection", features: [] })
   const [globeSize, setGlobeSize] = useState({ width: 0, height: 0 })
-  const colors = {
-    highlight: "rgba(2, 195, 154, 0.8)",
-    default: "rgba(5, 102, 141, 0.15)",
-    atmosphere: "rgba(2, 128, 144, 0.5)"
-  }
+
+  const highlightedSet = useMemo(() => new Set(highlightedCountries), [highlightedCountries])
 
   useEffect(() => {
     fetch("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
@@ -84,54 +93,55 @@ export const WorldMap = ({ highlightedCountries, focusedCountry, onCountryClick 
     }
   }, [focusedCountry])
 
-  const getCountryCode = (d: GeoJsonFeature): string => {
+  const getCountryCode = useCallback((d: GeoJsonFeature): string => {
     if (d.id && ISO_ALPHA3_TO_ALPHA2[d.id]) {
       return ISO_ALPHA3_TO_ALPHA2[d.id]
     }
     return (d.properties?.ISO_A2 || d.properties?.iso_a2 || "").toUpperCase()
-  }
+  }, [])
 
-  const getPolygonLabel = (d: object) => {
+  const getPolygonLabel = useCallback((d: object) => {
     const feature = d as GeoJsonFeature
     return feature.properties?.name || feature.properties?.NAME || ""
-  }
+  }, [])
 
-  const getPolygonCapColor = (d: object) => {
-    const countryCode = getCountryCode(d as GeoJsonFeature)
-    if (countryCode && highlightedCountries.includes(countryCode)) {
-      return colors.highlight
-    }
-    return "rgba(0, 0, 0, 0.75)"
-  }
+  const getPolygonCapColor = useCallback(
+    (d: object) => {
+      const countryCode = getCountryCode(d as GeoJsonFeature)
+      return countryCode && highlightedSet.has(countryCode) ? COLORS.highlightedCap : COLORS.defaultCap
+    },
+    [getCountryCode, highlightedSet]
+  )
 
-  const getPolygonSideColor = (d: object) => {
-    const countryCode = getCountryCode(d as GeoJsonFeature)
-    if (countryCode && highlightedCountries.includes(countryCode)) {
-      return "rgba(231, 40, 40, 0)"
-    }
-    return "rgba(0, 0, 0, 0)"
-  }
+  const getPolygonSideColor = useCallback(
+    (d: object) => {
+      const countryCode = getCountryCode(d as GeoJsonFeature)
+      return countryCode && highlightedSet.has(countryCode) ? COLORS.highlightedSide : COLORS.defaultSide
+    },
+    [getCountryCode, highlightedSet]
+  )
 
-  const getPolygonStrokeColor = (d: object) => {
-    const countryCode = getCountryCode(d as GeoJsonFeature)
-    if (countryCode && highlightedCountries.includes(countryCode)) {
-      return "rgba(231, 40, 40, 0.6)"
-    }
-    return "rgba(255, 255, 255, 0.75)"
-  }
+  const getPolygonStrokeColor = useCallback(
+    (d: object) => {
+      const countryCode = getCountryCode(d as GeoJsonFeature)
+      return countryCode && highlightedSet.has(countryCode) ? COLORS.highlightedStroke : COLORS.defaultStroke
+    },
+    [getCountryCode, highlightedSet]
+  )
 
-  const handlePolygonClick = (polygon: object) => {
-    const countryCode = getCountryCode(polygon as GeoJsonFeature)
-    if (countryCode) {
-      onCountryClick(countryCode)
-    }
-  }
+  const handlePolygonClick = useCallback(
+    (polygon: object) => {
+      const countryCode = getCountryCode(polygon as GeoJsonFeature)
+      if (countryCode) {
+        onCountryClick(countryCode)
+      }
+    },
+    [getCountryCode, onCountryClick]
+  )
 
-  const handlePolygonHover = (polygon: object | null) => {
-    if (globeEl.current) {
-      document.body.style.cursor = polygon ? "pointer" : "default"
-    }
-  }
+  const handlePolygonHover = useCallback((polygon: object | null) => {
+    document.body.style.cursor = polygon ? "pointer" : "default"
+  }, [])
 
   return (
     <div className={styles.globeContainer} ref={containerRef}>
@@ -142,7 +152,7 @@ export const WorldMap = ({ highlightedCountries, focusedCountry, onCountryClick 
         globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
         backgroundColor="rgba(0,0,0,0)"
         showAtmosphere={true}
-        atmosphereColor={colors.atmosphere}
+        atmosphereColor={COLORS.atmosphere}
         atmosphereAltitude={0.15}
         polygonsData={countries.features}
         polygonLabel={getPolygonLabel}

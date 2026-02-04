@@ -1,4 +1,6 @@
-import React, { ReactNode, useState, useEffect, useRef, cloneElement, isValidElement, createContext, useContext } from "react"
+import React, { ReactNode, useState, useRef, cloneElement, isValidElement, createContext, useContext, useCallback } from "react"
+import { useClickOutside } from "@/hooks/useClickOutside"
+import { useEscapeKey } from "@/hooks/useEscapeKey"
 import styles from "./Dropdown.module.scss"
 
 type DropdownContextValue = {
@@ -21,35 +23,22 @@ export const Dropdown = ({ trigger, children, isOpen: controlledOpen, onOpenChan
   const isOpen = isControlled ? controlledOpen : internalOpen
   const wrapperRef = useRef<HTMLDivElement>(null)
 
-  const setOpen = (open: boolean) => {
-    if (!isControlled) setInternalOpen(open)
-    onOpenChange?.(open)
-  }
+  const setOpen = useCallback(
+    (open: boolean) => {
+      if (!isControlled) setInternalOpen(open)
+      onOpenChange?.(open)
+    },
+    [isControlled, onOpenChange]
+  )
 
-  useEffect(() => {
-    if (!isOpen) return
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false)
-    }
-    document.addEventListener("keydown", handleEscape)
-    return () => document.removeEventListener("keydown", handleEscape)
-  }, [isOpen])
+  const handleClose = useCallback(() => setOpen(false), [setOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target
-      if (target instanceof Node && wrapperRef.current && !wrapperRef.current.contains(target)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isOpen])
+  useEscapeKey(handleClose, isOpen)
+  useClickOutside(wrapperRef, handleClose, isOpen)
 
-  const handleTriggerClick = () => {
+  const handleTriggerClick = useCallback(() => {
     setOpen(!isOpen)
-  }
+  }, [isOpen, setOpen])
 
   type TriggerProps = { onClick?: () => void }
   const triggerWithClick = isValidElement(trigger)

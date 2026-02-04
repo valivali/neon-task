@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/animations" as *;
 
 .overlay {
   position: fixed;
@@ -9,7 +10,7 @@
   justify-content: center;
   padding: var(--spacing-md);
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  animation: fadeInOverlay 0.2s ease;
 }
 
 .modal {
@@ -105,25 +106,5 @@
 
   &:hover {
     background: var(--color-deep-sea);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
   }
 }

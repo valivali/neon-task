@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useMemo } from "react"
 import * as flags from "country-flag-icons/react/3x2"
 import { Country } from "@/types"
 import { Card } from "@/components/UI/card/Card"
@@ -22,26 +22,52 @@ interface CountryClockProps {
 
 const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove, onShowOnMap, onSelectOffset }: CountryClockProps) => {
   const FlagComponent = isFlagKey(country.code) ? flags[country.code] : undefined
-  const timeZones = country.timeZones.length ? country.timeZones : [country.timeZone]
-  const offsets = currentTime ? getOffsetsByTimeZone(timeZones, currentTime) : []
-  const availableOffsets = offsets.map((entry) => entry.offset)
-  const activeOffset = selectedOffset && availableOffsets.includes(selectedOffset) ? selectedOffset : availableOffsets[0]
-  const activeTimeZone = offsets.find((entry) => entry.offset === activeOffset)?.timeZone ?? country.timeZone
 
-  const timeFormatter = new Intl.DateTimeFormat("en-GB", {
-    timeZone: activeTimeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  })
+  const timeZones = useMemo(
+    () => (country.timeZones.length ? country.timeZones : [country.timeZone]),
+    [country.timeZones, country.timeZone]
+  )
 
-  const offsetFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: activeTimeZone,
-    timeZoneName: "shortOffset"
-  })
+  const offsets = useMemo(() => (currentTime ? getOffsetsByTimeZone(timeZones, currentTime) : []), [timeZones, currentTime])
 
-  const timeString = currentTime ? timeFormatter.format(currentTime) : "--:--"
-  const offsetString = currentTime ? formatOffset(offsetFormatter.formatToParts(currentTime)) : ""
+  const availableOffsets = useMemo(() => offsets.map((entry) => entry.offset), [offsets])
+
+  const activeOffset = useMemo(
+    () => (selectedOffset && availableOffsets.includes(selectedOffset) ? selectedOffset : availableOffsets[0]),
+    [selectedOffset, availableOffsets]
+  )
+
+  const activeTimeZone = useMemo(
+    () => offsets.find((entry) => entry.offset === activeOffset)?.timeZone ?? country.timeZone,
+    [offsets, activeOffset, country.timeZone]
+  )
+
+  const timeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-GB", {
+        timeZone: activeTimeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }),
+    [activeTimeZone]
+  )
+
+  const offsetFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: activeTimeZone,
+        timeZoneName: "shortOffset"
+      }),
+    [activeTimeZone]
+  )
+
+  const timeString = useMemo(() => (currentTime ? timeFormatter.format(currentTime) : "--:--"), [currentTime, timeFormatter])
+
+  const offsetString = useMemo(
+    () => (currentTime ? formatOffset(offsetFormatter.formatToParts(currentTime)) : ""),
+    [currentTime, offsetFormatter]
+  )
 
   return (
     <Card className={styles.clockCard}>

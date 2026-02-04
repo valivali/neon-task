@@ -1,4 +1,4 @@
-import { KeyboardEvent, useState, useRef, useMemo, RefObject } from "react"
+import { KeyboardEvent, useState, useRef, useMemo, RefObject, useCallback } from "react"
 import toast from "react-hot-toast"
 import { Country } from "@/types"
 import { searchCountries } from "@/data/countries"
@@ -24,25 +24,31 @@ export const CountrySearch = ({ onSelect, existingCodes }: CountrySearchProps) =
     return searchCountries(debouncedValue, existingCodes)
   }, [debouncedValue, existingCodes])
 
-  const handleSelect = (country: Country) => {
-    onSelect(country)
-    setInputValue("")
-  }
+  const handleSelect = useCallback(
+    (country: Country) => {
+      onSelect(country)
+      setInputValue("")
+    },
+    [onSelect]
+  )
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && inputValue.length >= 3) {
-      if (filteredCountries.length > 0) {
-        handleSelect(filteredCountries[0])
-      } else {
-        toast.error("Couldn't find such country in our world")
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && inputValue.length >= 3) {
+        if (filteredCountries.length > 0) {
+          handleSelect(filteredCountries[0])
+        } else {
+          toast.error("Couldn't find such country in our world")
+        }
       }
-    }
-  }
+    },
+    [inputValue.length, filteredCountries, handleSelect]
+  )
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setInputValue("")
     inputRef.current?.focus()
-  }
+  }, [])
 
   return (
     <div className={styles.searchWrapper}>

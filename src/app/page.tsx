@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect, useMemo } from "react"
 import dynamic from "next/dynamic"
 import toast from "react-hot-toast"
 import { Country } from "@/types"
@@ -48,12 +48,13 @@ export default function WorldClockPage() {
 
   const handleSelectCountry = useCallback(
     (country: Country) => {
-      if (!countryCodes.includes(country.code)) {
-        setCountryCodes([country.code, ...countryCodes])
-        setFocusedCountry(country)
-      }
+      setCountryCodes((prev) => {
+        if (prev.includes(country.code)) return prev
+        return [country.code, ...prev]
+      })
+      setFocusedCountry(country)
     },
-    [countryCodes, setCountryCodes]
+    [setCountryCodes]
   )
 
   const handleRemoveClick = useCallback((code: string) => {
@@ -63,27 +64,27 @@ export default function WorldClockPage() {
 
   const handleConfirmRemove = useCallback(() => {
     if (countryToRemove) {
-      setCountryCodes(countryCodes.filter((code) => code !== countryToRemove))
-      if (selectedOffsets[countryToRemove]) {
-        const { [countryToRemove]: _, ...rest } = selectedOffsets
-        setSelectedOffsets(rest)
-      }
+      setCountryCodes((prev) => prev.filter((code) => code !== countryToRemove))
+      setSelectedOffsets((prev) => {
+        if (!prev[countryToRemove]) return prev
+        const { [countryToRemove]: _, ...rest } = prev
+        return rest
+      })
       setCountryToRemove(null)
       toast.success("Clock removed successfully")
     }
-  }, [countryToRemove, countryCodes, selectedOffsets, setCountryCodes, setSelectedOffsets])
+  }, [countryToRemove, setCountryCodes, setSelectedOffsets])
 
   const handleSelectOffset = useCallback(
     (code: string, offset: string) => {
-      setSelectedOffsets({ ...selectedOffsets, [code]: offset })
+      setSelectedOffsets((prev) => ({ ...prev, [code]: offset }))
     },
-    [selectedOffsets, setSelectedOffsets]
+    [setSelectedOffsets]
   )
 
   const handleShowOnMap = useCallback((code: string) => {
     const country = getCountryByCode(code)
     if (country) {
-      console.log("handleShowOnMap", country)
       setFocusedCountry(country)
     }
   }, [])
@@ -94,7 +95,6 @@ export default function WorldClockPage() {
       if (!country) return
 
       if (countryCodes.includes(country.code)) {
-        console.log("handleCountryClick", country)
         setFocusedCountry(country)
       } else {
         setCountryToAdd(country)
@@ -104,17 +104,22 @@ export default function WorldClockPage() {
     [countryCodes]
   )
 
+  const handleCloseRemoveModal = useCallback(() => setRemoveModalOpen(false), [])
+  const handleCloseAddModal = useCallback(() => setAddModalOpen(false), [])
+
   const handleConfirmAdd = useCallback(() => {
     if (countryToAdd) {
-      setCountryCodes([countryToAdd.code, ...countryCodes])
-      console.log("handleConfirmAdd", countryToAdd)
+      setCountryCodes((prev) => [countryToAdd.code, ...prev])
       setFocusedCountry(countryToAdd)
       setCountryToAdd(null)
       toast.success(`Added ${countryToAdd.name}`)
     }
-  }, [countryToAdd, countryCodes, setCountryCodes])
+  }, [countryToAdd, setCountryCodes])
 
-  const countries = countryCodes.map((code) => getCountryByCode(code)).filter((country): country is Country => country !== undefined)
+  const countries = useMemo(
+    () => countryCodes.map((code) => getCountryByCode(code)).filter((country): country is Country => country !== undefined),
+    [countryCodes]
+  )
 
   if (!mounted) {
     return null
@@ -159,7 +164,7 @@ export default function WorldClockPage() {
 
       <Modal
         isOpen={removeModalOpen}
-        onClose={() => setRemoveModalOpen(false)}
+        onClose={handleCloseRemoveModal}
         title="Remove Clock"
         confirmText="Remove"
         cancelText="Cancel"
@@ -170,7 +175,7 @@ export default function WorldClockPage() {
 
       <Modal
         isOpen={addModalOpen}
-        onClose={() => setAddModalOpen(false)}
+        onClose={handleCloseAddModal}
         title="Add Clock"
         confirmText="Add"
         cancelText="Cancel"

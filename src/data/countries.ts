@@ -25,15 +25,27 @@ export const COUNTRIES: Country[] = Object.values(getAllCountries())
   .filter((country) => isFlagKey(country.code))
   .sort((a, b) => a.name.localeCompare(b.name))
 
+const COUNTRIES_MAP = new Map<string, Country>(COUNTRIES.map((c) => [c.code.toLowerCase(), c]))
+
 export const getCountryByCode = (code: string): Country | undefined => {
-  return COUNTRIES.find((c) => c.code.toLowerCase() === code.toLowerCase())
+  return COUNTRIES_MAP.get(code.toLowerCase())
 }
 
 export const searchCountries = (query: string, excludeCodes: string[] = []): Country[] => {
   const lowerQuery = query.toLowerCase().trim()
   if (!lowerQuery) return []
 
-  return COUNTRIES.filter((country) => !excludeCodes.includes(country.code) && country.name.toLowerCase().includes(lowerQuery)).slice(0, 10)
+  const excludeSet = new Set(excludeCodes)
+  const results: Country[] = []
+
+  for (const country of COUNTRIES) {
+    if (results.length >= 10) break
+    if (!excludeSet.has(country.code) && country.name.toLowerCase().includes(lowerQuery)) {
+      results.push(country)
+    }
+  }
+
+  return results
 }
 
 export const getRandomCountries = (count: number, excludeCodes: string[] = []): Country[] => {

@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect } from "react"
+import React, { ReactNode, useEffect, useCallback } from "react"
 import { createPortal } from "react-dom"
+import { useEscapeKey } from "@/hooks/useEscapeKey"
 import { CloseIcon } from "@/components/icons/CloseIcon"
 import styles from "./Modal.module.scss"
 import { Button } from "../button/Button"
@@ -25,45 +26,42 @@ export const Modal = ({
   onConfirm,
   onCancel
 }: ModalProps) => {
+  useEscapeKey(onClose, isOpen)
+
   useEffect(() => {
     if (!isOpen) return
 
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose()
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape)
     document.body.style.overflow = "hidden"
 
     return () => {
-      document.removeEventListener("keydown", handleEscape)
       document.body.style.overflow = ""
     }
-  }, [isOpen, onClose])
+  }, [isOpen])
 
-  if (!isOpen) return null
+  const handleOverlayClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === e.currentTarget) {
+        onClose()
+      }
+    },
+    [onClose]
+  )
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
-  }
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (onCancel) {
       onCancel()
     }
     onClose()
-  }
+  }, [onCancel, onClose])
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (onConfirm) {
       onConfirm()
     }
     onClose()
-  }
+  }, [onConfirm, onClose])
+
+  if (!isOpen) return null
 
   return createPortal(
     <div className={styles.overlay} onClick={handleOverlayClick}>
