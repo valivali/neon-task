@@ -40,14 +40,21 @@ src/
 │   ├── icons/           # SVG icon components
 │   └── UI/              # Reusable UI primitives (Button, Card, Input, etc.)
 ├── data/
-│   ├── countries.ts           # Canonical country list
+│   ├── countries.ts           # Canonical country list with Map-based lookups
 │   ├── countryCoordinates.ts  # Geographic coordinates for map
 │   └── isoCodeMapping.ts      # ISO code normalization
 ├── hooks/
 │   ├── useDebounce.ts         # Debounced value hook
 │   ├── useInterval.ts         # Interval timer hook
-│   └── useSessionStorage.ts   # Session storage state management
-├── styles/             # Global styles and SCSS variables
+│   ├── useSessionStorage.ts   # Session storage with SSR support
+│   ├── useClickOutside.ts     # Click outside detection hook
+│   └── useEscapeKey.ts        # Escape key handler hook
+├── styles/
+│   ├── globals.scss           # Global styles
+│   ├── _variables.scss        # SCSS variables
+│   └── _animations.scss       # Shared animation keyframes
+├── utils/
+│   └── classNames.ts          # Utility for merging CSS classes
 └── types/              # TypeScript type definitions
 ```
 
@@ -56,9 +63,10 @@ src/
 The application follows a client-side architecture with no backend server or database:
 
 - **State Management**: React hooks with session storage persistence
-- **Data Layer**: Static data files with library mappings
+- **Data Layer**: Static data files with optimized Map-based lookups
 - **Component Design**: Modular, reusable components with SCSS Modules
 - **Rendering**: Client-side rendering with Next.js App Router
+- **Performance**: Memoization, functional updates, and shared utilities
 
 ## Design Decisions
 
@@ -137,3 +145,23 @@ View interactive component documentation:
 ```bash
 npm run storybook
 ```
+
+## Performance Benchmarks
+
+The application has been optimized for production performance:
+
+- **Build Size**: Optimized production bundle with code splitting
+- **Re-render Prevention**: Memoization eliminates unnecessary component updates
+- **Search Performance**: O(1) country lookups vs O(n) array searches
+- **WorldMap Rendering**: Callback memoization prevents function recreation on every polygon
+- **Clock Updates**: Formatter reuse eliminates object creation every second
+
+## Browser Support
+
+- Chrome, Firefox, Safari, Edge (latest 2 versions)
+- Requires JavaScript enabled
+- Best viewed on desktop for full 3D globe experience
+
+## License
+
+MIT
