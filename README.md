@@ -16,6 +16,7 @@ Watch a full walkthrough of the application:
 - **Persistent State**: Selections saved in session storage across page refreshes
 - **Random Initialization**: Three random country clocks displayed on first load
 - **Real-time Updates**: Clocks update every second with accurate timezone data
+- **Dark Theme Toggle**: Switch between light and dark modes
 
 ## Tech Stack
 
@@ -89,6 +90,10 @@ Different libraries represent countries using different formats and naming conve
 - **`countries.ts`**: Canonical list of countries with standardized properties
 - **`countryCoordinates.ts`**: Geographic coordinates for map positioning
 - **`isoCodeMapping.ts`**: Mapping layer to align ISO codes between different data sources (country-flag-icons, countries-and-timezones, react-globe.gl)
+
+### 5. Mobile-Friendly Country Name Interaction
+
+Hover interactions are not available on mobile devices, so I added a long-press option on the country name to reveal the same details available on desktop hover.
 
 ## Getting Started
 

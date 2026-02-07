@@ -8,11 +8,13 @@ import { getCountryByCode, getRandomCountries } from "@/data/countries"
 import { useInterval } from "@/hooks/useInterval"
 import { useSessionStorage } from "@/hooks/useSessionStorage"
 import { Title } from "@/components/UI/text/Text"
+import { Toggle } from "@/components/UI/toggle/Toggle"
 import { Modal } from "@/components/UI/modal/Modal"
 import { CountryClock } from "@/components/CountryClock/CountryClock"
 import { CountrySearch } from "@/components/CountrySearch/CountrySearch"
 import { EmptyState } from "@/components/EmptyState/EmptyState"
 import { GlobeIcon } from "@/components/icons/GlobeIcon"
+import { useTheme } from "@/contexts/ThemeContext"
 import styles from "./page.module.scss"
 
 const WorldMap = dynamic(() => import("@/components/WorldMap/WorldMap").then((mod) => mod.WorldMap), {
@@ -21,10 +23,12 @@ const WorldMap = dynamic(() => import("@/components/WorldMap/WorldMap").then((mo
 })
 
 export default function WorldClockPage() {
+  const { theme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [currentTime, setCurrentTime] = useState<Date | null>(null)
   const [countryCodes, setCountryCodes] = useSessionStorage<string[]>("world-clock-countries", [])
   const [selectedOffsets, setSelectedOffsets] = useSessionStorage<Record<string, string>>("world-clock-timezone-offsets", {})
+  const [customNames, setCustomNames] = useSessionStorage<Record<string, string>>("world-clock-custom-names", {})
   const [removeModalOpen, setRemoveModalOpen] = useState(false)
   const [countryToRemove, setCountryToRemove] = useState<string | null>(null)
   const [focusedCountry, setFocusedCountry] = useState<Country | null>(null)
@@ -82,6 +86,21 @@ export default function WorldClockPage() {
     [setSelectedOffsets]
   )
 
+  const handleNameChange = useCallback(
+    (code: string, name: string) => {
+      const original = getCountryByCode(code)?.name
+      setCustomNames((prev) => {
+        if (!name || name === original) {
+          if (!prev[code]) return prev
+          const { [code]: _, ...rest } = prev
+          return rest
+        }
+        return { ...prev, [code]: name }
+      })
+    },
+    [setCustomNames]
+  )
+
   const handleShowOnMap = useCallback((code: string) => {
     const country = getCountryByCode(code)
     if (country) {
@@ -129,8 +148,21 @@ export default function WorldClockPage() {
     <main className={styles.main}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <GlobeIcon className={styles.globeIcon} />
-          <Title>World Clock App</Title>
+          <div className={styles.titleGroup}>
+            <GlobeIcon className={styles.globeIcon} />
+            <Title>World Clock App</Title>
+          </div>
+          <div className={styles.themeToggle}>
+            <Toggle
+              checked={theme === "dark"}
+              onChange={(checked) => {
+                if (checked !== (theme === "dark")) toggleTheme()
+              }}
+              label="Dark mode"
+              size="sm"
+              aria-label="Toggle dark mode"
+            />
+          </div>
         </div>
 
         <CountrySearch onSelect={handleSelectCountry} existingCodes={countryCodes} />
@@ -147,9 +179,11 @@ export default function WorldClockPage() {
                     country={country}
                     currentTime={currentTime}
                     selectedOffset={selectedOffsets[country.code]}
+                    customName={customNames[country.code]}
                     onRemove={handleRemoveClick}
                     onShowOnMap={handleShowOnMap}
                     onSelectOffset={handleSelectOffset}
+                    onNameChange={handleNameChange}
                   />
                 ))}
               </div>

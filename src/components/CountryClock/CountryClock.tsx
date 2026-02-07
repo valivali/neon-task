@@ -1,4 +1,4 @@
-import { memo, useMemo } from "react"
+import { memo, useMemo, useState, useCallback, useEffect, useRef } from "react"
 import * as flags from "country-flag-icons/react/3x2"
 import { Country } from "@/types"
 import { Card } from "@/components/UI/card/Card"
@@ -7,21 +7,103 @@ import { Badge } from "@/components/UI/badge/Badge"
 import { OptionsIcon } from "@/components/icons/OptionsIcon"
 import { PinIcon } from "@/components/icons/PinIcon"
 import { TrashIcon } from "@/components/icons/TrashIcon"
+import { PencilIcon } from "@/components/icons/PencilIcon"
+import { useLongPress } from "@/hooks/useLongPress"
 import styles from "./CountryClock.module.scss"
 import { Button } from "../UI/button/Button"
 import { Subtitle, Text } from "../UI/text/Text"
+import { cn } from "@/utils/classNames"
 
 interface CountryClockProps {
   country: Country
   currentTime: Date | null
   selectedOffset?: string
+  customName?: string
   onRemove: (code: string) => void
   onShowOnMap: (code: string) => void
   onSelectOffset: (code: string, offset: string) => void
+  onNameChange: (code: string, name: string) => void
 }
 
-const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove, onShowOnMap, onSelectOffset }: CountryClockProps) => {
+const CountryClockComponent = ({
+  country,
+  currentTime,
+  selectedOffset,
+  customName,
+  onRemove,
+  onShowOnMap,
+  onSelectOffset,
+  onNameChange
+}: CountryClockProps) => {
   const FlagComponent = isFlagKey(country.code) ? flags[country.code] : undefined
+  const [isEditing, setIsEditing] = useState(false)
+  const [isHovering, setIsHovering] = useState(false)
+  const [editValue, setEditValue] = useState(customName ?? country.name)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const actionsRef = useRef<HTMLDivElement>(null)
+
+  const displayName = customName ?? country.name
+  const isSingleWord = !displayName.trim().includes(" ")
+  const shouldShowCode = customName && customName.trim() && customName.trim() !== country.name
+
+  useEffect(() => {
+    if (!isEditing) {
+      setEditValue(displayName)
+    }
+  }, [displayName, isEditing])
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }
+  }, [isEditing])
+
+  const handleStartEdit = useCallback(() => {
+    setIsEditing(true)
+  }, [])
+
+  const handleCancelEdit = useCallback(() => {
+    setEditValue(displayName)
+    setIsEditing(false)
+  }, [displayName])
+
+  const handleApplyEdit = useCallback(() => {
+    const nextValue = editValue.trim()
+    onNameChange(country.code, nextValue)
+    setIsEditing(false)
+  }, [country.code, editValue, onNameChange])
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        event.preventDefault()
+        handleApplyEdit()
+      }
+      if (event.key === "Escape") {
+        event.preventDefault()
+        handleCancelEdit()
+      }
+    },
+    [handleApplyEdit, handleCancelEdit]
+  )
+
+  const handleInputBlur = useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      const nextTarget = event.relatedTarget as Node | null
+      if (actionsRef.current && nextTarget && actionsRef.current.contains(nextTarget)) {
+        return
+      }
+      handleCancelEdit()
+    },
+    [handleCancelEdit]
+  )
+
+  const longPressHandlers = useLongPress(() => {
+    if (!isEditing) {
+      setIsEditing(true)
+    }
+  })
 
   const timeZones = useMemo(
     () => (country.timeZones.length ? country.timeZones : [country.timeZone]),
@@ -74,9 +156,46 @@ const CountryClockComponent = ({ country, currentTime, selectedOffset, onRemove,
       <div className={styles.clockContent}>
         <div className={styles.leftSection}>
           <div className={styles.flagWrapper}>{FlagComponent && <FlagComponent className={styles.flag} />}</div>
-          <Subtitle variant="span" className={styles.countryName} size="lg">
-            {country.name}
-          </Subtitle>
+          <div
+            className={styles.nameWrapper}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+            {...longPressHandlers}
+          >
+            {isEditing ? (
+              <div className={styles.nameInputWrapper}>
+                <input
+                  ref={inputRef}
+                  className={styles.nameInput}
+                  value={editValue}
+                  onChange={(event) => setEditValue(event.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleInputBlur}
+                  aria-label="Edit country name"
+                />
+                <div className={styles.editActions} ref={actionsRef}>
+                  <Button size="xs" variant="primary" onClick={handleApplyEdit}>
+                    Save
+                  </Button>
+                  <Button size="xs" variant="secondary" onClick={handleCancelEdit}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Subtitle variant="span" className={styles.countryName} size="lg">
+                  <span className={cn(styles.countryNameText, isSingleWord && styles.singleWord)}>{displayName}</span>
+                  {shouldShowCode && <span className={styles.countryCode}> ({country.code})</span>}
+                </Subtitle>
+                {isHovering && (
+                  <button type="button" className={styles.editIcon} onClick={handleStartEdit} aria-label="Edit name">
+                    <PencilIcon />
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         <div className={styles.timeBlock}>

@@ -16,7 +16,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-xl);
 
@@ -27,6 +27,21 @@
   @include respond-above($breakpoint-md) {
     gap: var(--spacing-lg);
   }
+}
+
+.titleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+
+  @include respond-above($breakpoint-md) {
+    gap: var(--spacing-lg);
+  }
+}
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
 }
 
 .globeIcon {
