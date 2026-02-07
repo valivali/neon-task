@@ -24,6 +24,7 @@ describe("CountryClock", () => {
   const onRemove = jest.fn()
   const onShowOnMap = jest.fn()
   const onSelectOffset = jest.fn()
+  const onNameChange = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -37,6 +38,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     expect(screen.getByText("United States")).toBeDefined()
@@ -51,6 +53,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     expect(screen.getByText("United States")).toBeDefined()
@@ -66,6 +69,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     const optionsButton = screen.getByRole("button", { name: /options/i })
@@ -83,6 +87,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     const optionsButton = screen.getByRole("button", { name: /options/i })
@@ -100,6 +105,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     const radiogroup = screen.getByRole("radiogroup", { name: /United States timezones/i })
@@ -119,6 +125,7 @@ describe("CountryClock", () => {
         onRemove={onRemove}
         onShowOnMap={onShowOnMap}
         onSelectOffset={onSelectOffset}
+        onNameChange={onNameChange}
       />
     )
     expect(screen.getByText("United States")).toBeDefined()
