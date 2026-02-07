@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useMemo, useCallback } from "react"
+import { createContext, useContext, useEffect, useMemo, useCallback, ReactNode } from "react"
 import { useSessionStorage } from "@/hooks/useSessionStorage"
 
 type Theme = "light" | "dark"
@@ -12,7 +12,7 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useSessionStorage<Theme>("world-clock-theme", "light")
 
   useEffect(() => {

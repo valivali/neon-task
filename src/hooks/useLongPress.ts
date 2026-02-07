@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, TouchEvent, MouseEvent } from "react"
 
 type LongPressOptions = {
   delay?: number
@@ -6,11 +6,11 @@ type LongPressOptions = {
 }
 
 type LongPressHandlers = {
-  onTouchStart: (event: React.TouchEvent) => void
-  onTouchMove: (event: React.TouchEvent) => void
+  onTouchStart: (event: TouchEvent) => void
+  onTouchMove: (event: TouchEvent) => void
   onTouchEnd: () => void
   onTouchCancel: () => void
-  onContextMenu: (event: React.MouseEvent) => void
+  onContextMenu: (event: MouseEvent) => void
 }
 
 export const useLongPress = (onLongPress: () => void, options: LongPressOptions = {}): LongPressHandlers => {
@@ -28,7 +28,7 @@ export const useLongPress = (onLongPress: () => void, options: LongPressOptions 
   useEffect(() => clearTimer, [clearTimer])
 
   const handleTouchStart = useCallback(
-    (event: React.TouchEvent) => {
+    (event: TouchEvent) => {
       const touch = event.touches[0]
       startPositionRef.current = touch ? { x: touch.clientX, y: touch.clientY } : null
       clearTimer()
@@ -41,7 +41,7 @@ export const useLongPress = (onLongPress: () => void, options: LongPressOptions 
   )
 
   const handleTouchMove = useCallback(
-    (event: React.TouchEvent) => {
+    (event: TouchEvent) => {
       if (!startPositionRef.current || !event.touches[0]) return
       const { x, y } = startPositionRef.current
       const deltaX = Math.abs(event.touches[0].clientX - x)
@@ -63,7 +63,7 @@ export const useLongPress = (onLongPress: () => void, options: LongPressOptions 
     startPositionRef.current = null
   }, [clearTimer])
 
-  const handleContextMenu = useCallback((event: React.MouseEvent) => {
+  const handleContextMenu = useCallback((event: MouseEvent) => {
     event.preventDefault()
   }, [])
 

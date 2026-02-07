@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback, useEffect, useRef } from "react"
+import React, { memo, useMemo, useState, useCallback, useEffect, useRef } from "react"
 import * as flags from "country-flag-icons/react/3x2"
 import { Country } from "@/types"
 import { Card } from "@/components/UI/card/Card"
